@@ -91,6 +91,8 @@ int send_request(int fd, char *hostname, char *port, char *path)
                                         "\n",
                                path, hostname, port);
 
+  //printf("Request:  \n%s", request);
+
   // Send the request
   rv = send(fd, request, request_length, 0);
 
@@ -117,13 +119,21 @@ int main(int argc, char *argv[])
   urlinfo_t *urlinfo = parse_url(argv[1]);
 
   // 2. Initialize a socket by calling the `get_socket` function from lib.c
-  // 3. Call `send_request` to construct the request and send it
-  // 4. Call `recv` in a loop until there is no more data to receive from the server. Print the received response to stdout.
-  // 5. Clean up any allocated memory and open file descriptors.
+  sockfd = get_socket(urlinfo->hostname, urlinfo->port);
+  //printf("sockfd: %d\n", sockfd);
 
-  ///////////////////
-  // IMPLEMENT ME! //
-  ///////////////////
+  // 3. Call `send_request` to construct the request and send it
+  send_request(sockfd, urlinfo->hostname, urlinfo->port, urlinfo->path);
+
+  // 4. Call `recv` in a loop until there is no more data to receive from the server. Print the received response to stdout.
+  while ((numbytes = recv(sockfd, buf, BUFSIZE - 1, 0)) > 0)
+  {
+    printf("%s\n", buf);
+  }
+
+  // 5. Clean up any allocated memory and open file descriptors.
+  free(urlinfo);
+  close(sockfd);
 
   return 0;
 }
